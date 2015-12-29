@@ -8,7 +8,7 @@ See this thread for more detailed description of original issue and comments - h
 
 ### Setup
 
-1. In your cloud-init file you comment out default `etcd2` declaration because it uses `$private_ipv4` which Rackspace resolves to ServiceNet (which is not quite private).
+ - In your cloud-init file you comment out default `etcd2` declaration because it uses `$private_ipv4` which Rackspace resolves to ServiceNet (which is not quite private).
 
         #cloud-config
           coreos:
@@ -26,7 +26,7 @@ See this thread for more detailed description of original issue and comments - h
           #    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
           #    listen-peer-urls: http://$private_ipv4:2380
 
-2. Add a new `unit` like shown below:
+ - Add a new `unit` like shown below:
 
         units:
           - name: etcd-env-generator.service
@@ -49,17 +49,19 @@ Note that you're supposed to pass network interface for etcd2 to listen at as we
 
         ExecStart=/opt/bin/etcd-env-generator.sh eth2 1c62104e7b81dcd903e848309f2eaa25
 
-3. Create a drop-in for original `etcd2.service`:
+Note, Rackspace maps the private network to `eth2` interface.
+
+ - Create a drop-in for original `etcd2.service`:
 
         - name: etcd2.service
-        drop-ins:
-          - name: "urls.conf"
-            content: |
-              [Unit]
-              Requires=etcd-env-generator.service
-              After=etcd-env-generator.service
-              [Service]
-              EnvironmentFile=/etc/etcd2-environment
+          drop-ins:
+            - name: "urls.conf"
+              content: |
+                [Unit]
+                Requires=etcd-env-generator.service
+                After=etcd-env-generator.service
+                [Service]
+                EnvironmentFile=/etc/etcd2-environment
 
 This will prescribe `etcd2.service` to get configuration data from `/etc/etcd2-environment` file the `etcd-env-generator.service` generated at step #2
 
@@ -67,7 +69,7 @@ This will prescribe `etcd2.service` to get configuration data from `/etc/etcd2-e
 
 1. See `how-to-inject-into-etcd2-service` text file for a sample `cloud-init` that uses `etcd-env-generator` tool.
 2. The tread on Serverfault - [CoreOS: Inject a real private IP in etcd2 cloud-config](http://serverfault.com/questions/745609/coreos-inject-a-real-private-ip-in-etcd2-cloud-config)
-3. The [approach]( https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html) described in CoreOS documentation, (skip to section called "etcd2.service Unit Advanced Example")
+3. The [approach of dropping in a piece of etcd2 service config]( https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html) is described in CoreOS documentation, (skip to section called "etcd2.service Unit Advanced Example")
 
 ## License
 
