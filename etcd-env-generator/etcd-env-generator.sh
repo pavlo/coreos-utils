@@ -11,8 +11,8 @@ echo "Creating ${TARGET} file with etcd2 configuration to be available on ${IP} 
 
 touch ${TARGET}
 
-echo "Environment='ETCD_DISCOVERY=https://discovery.etcd.io/${CLUSTER_TOKEN}'" > ${TARGET}
-echo "Environment='ETCD_ADVERTISE_CLIENT_URLS=${URL}:2379'" >> ${TARGET}
-echo "Environment='ETCD_INITIAL_ADVERTISE_PEER_URLS=${URL}:2380'" >> ${TARGET}
-echo "Environment='ETCD_LISTEN_CLIENT_URLS=${URL}:2379,${URL}:4001'" >> ${TARGET}
-echo "Environment='ETCD_LISTEN_PEER_URLS=${URL}:2380'" >> ${TARGET}
+echo "ETCD_DISCOVERY=https://discovery.etcd.io/${CLUSTER_TOKEN}" > ${TARGET}
+echo "ETCD_ADVERTISE_CLIENT_URLS=${URL}:2379" >> ${TARGET}
+echo "ETCD_INITIAL_ADVERTISE_PEER_URLS=${URL}:2380" >> ${TARGET}
+echo "ETCD_LISTEN_CLIENT_URLS=${URL}:2379,${URL}:4001" >> ${TARGET}
+echo "ETCD_LISTEN_PEER_URLS=${URL}:2380" >> ${TARGET}
