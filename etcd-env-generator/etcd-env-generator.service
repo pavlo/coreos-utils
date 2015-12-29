@@ -1,0 +1,12 @@
+[Unit]
+Description=Creates an EnvironmentFile with etcd2 setup on private network to be injected into etcd2 service
+Documentation=https://github.com/pavlo/coreos-utils/etcd-env-generator
+Requires=network.target
+After=network.target
+[Service]
+ExecStartPre=-/usr/bin/mkdir -p /opt/bin
+ExecStartPre=/usr/bin/wget -N -P /opt/bin https://github.com/pavlo/coreos-utils/etcd-env-generator/etcd-env-generator.sh
+ExecStartPre=/usr/bin/chmod +x /opt/bin/etcd-env-generator.sh
+ExecStart=/opt/bin/etcd-env-generator.sh eth2 1c62104e7b81dcd903e848309f2eaa25
+RemainAfterExit=yes
+Type=oneshot
