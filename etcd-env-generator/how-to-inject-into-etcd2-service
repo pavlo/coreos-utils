@@ -1,0 +1,48 @@
+#cloud-config
+  coreos:
+  # NOTE, THE WHOLE ETCD2 SECTION BELOW IS COMMENTED OUT!
+  # It is because it actually creates exactly the same drop-in for etcd2.service
+  # that we're going create with our 'etcd-env-generator.service' below
+  # For more information see this -
+  # https://coreos.com/os/docs/latest/using-environment-variables-in-systemd-units.html
+  # skip to section called "etcd2.service Unit Advanced Example"
+  #
+  # etcd2:
+  #    discovery: https://discovery.etcd.io/<token>
+  #    advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
+  #    initial-advertise-peer-urls: http://$private_ipv4:2380
+  #    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+  #    listen-peer-urls: http://$private_ipv4:2380
+    units:
+      - name: etcd-env-generator.service
+        command: start
+        content: |
+          [Unit]
+          Description=Creates an EnvironmentFile with etcd2 setup on private network to be injected into etcd2 service
+          Documentation=https://github.com/pavlo/coreos-utils/etcd-env-generator
+          Requires=network.target
+          After=network.target
+          [Service]
+          ExecStartPre=-/usr/bin/mkdir -p /opt/bin
+          ExecStartPre=/usr/bin/wget -N -P /opt/bin https://raw.githubusercontent.com/pavlo/coreos-utils/master/etcd-env-generator/etcd-env-generator.sh
+          ExecStartPre=/usr/bin/chmod +x /opt/bin/etcd-env-generator.sh
+          ExecStart=/opt/bin/etcd-env-generator.sh eth2 1c62104e7b81dcd903e848309f2eaa25
+          RemainAfterExit=yes
+          Type=oneshot
+      - name: etcd2.service
+        # https://github.com/coreos/etcd/issues/3600
+        drop-ins:
+          - name: "timeout.conf"
+            content: |
+              [Service]
+              TimeoutStartSec=0
+          - name: "urls.conf"
+            content: |
+              [Unit]
+              Requires=etcd-env-generator.service
+              After=etcd-env-generator.service
+              [Service]
+              EnvironmentFile=/etc/etcd2-environment
+        command: start
+      - name: fleet.service
+        command: start
