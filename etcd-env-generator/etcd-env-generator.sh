@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 IFACE=${1:-eth2}
 CLUSTER_TOKEN=${2}
 TARGET=${3:-"/etc/etcd2-environment"}
