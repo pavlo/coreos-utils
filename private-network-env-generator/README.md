@@ -2,7 +2,7 @@
 
 Some providers, such as Rackspace, inject the `COREOS_PRIVATE_IPV4` variable pointed to Service Network even when a real private network is available. This would make difficulties for you if your services need to bind to the real private network.
 
-This service is a simple script that receives a network interface to get the IP address for and saves it in `/etc/private-network-environment` file like this:   
+This service is a simple script that receives a network interface to get the IP address for and saves the address in `/etc/private-network-environment` file like this:   
 
 ```bash
 COREOS_REAL_PRIVATE_IP=192.168.3.1
@@ -37,3 +37,7 @@ After this, a unit, that needs to know the real private IP address can be declar
     [Service]
     EnvironmentFile=/etc/private-network-environment
     ExecStart=myapp $(COREOS_REAL_PRIVATE_IP)
+
+## License
+
+The tool is licensed under the [MIT License](http://www.opensource.org/licenses/MIT).
